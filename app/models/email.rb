@@ -1,44 +1,15 @@
 class Email < ApplicationRecord
   belongs_to :conversation
+  has_one :raw, class_name: 'EmailRaw', inverse_of: :email
+  accepts_nested_attributes_for :raw
 
-  validate :validate_mongo
-  before_save :update_mongo
+  after_save :save_raw
 
-  def body
-    return mongo_record.body
+  def raw
+    @raw ||= super || EmailRaw.new(email: self)
   end
 
-  def body=(value)
-    self.mongo_record.body = value
-  end
-
-  def validate_mongo
-    if not self.mongo_id
-      if self.body.nil?
-        errors.add(:body, 'body must have a value')
-      end
-    end
-
-    true
-  end
-
-  def update_mongo
-    mongo_record.save
-
-    if !self.mongo_id
-      self.mongo_id = mongo_record._id
-    end
-  end
-
-  def mongo_record
-    return @mongo_record if @mongo_record
-
-    @mongo_record = EmailDocument.where(_id: self.mongo_id).first
-
-    if not @mongo_record
-      @mongo_record = EmailDocument.create()
-    end
-
-    @mongo_record
+  def save_raw
+    @raw.save if @raw
   end
 end

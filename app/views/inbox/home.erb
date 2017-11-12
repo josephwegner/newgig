@@ -8,8 +8,8 @@
       <% c.emails.each do |e| %>
         <li class="list-group-item">
           <strong><%= e.from %></strong>
-          <% if e.body %>
-            <p><%= e.body %></p>
+          <% if e.raw.body %>
+            <p><%= e.raw.body %></p>
           <% else %>
             <p class="text-secondary">No Body Content</p>
           <% end %>
